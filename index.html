@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SchemaForge Studio — Database Schema Converter & Zero-Knowledge AI Prompt Sanitizer</title>
+  <meta name="description" content="100% Client-Side developer micro-tool: Convert schemas between SQL DDL, Prisma, Drizzle ORM & TypeScript. Redact PII, passwords, emails, CPFs and secrets before pasting into AI models (ChatGPT, Claude, Gemini).">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="SchemaForge Studio — Schema Converter & AI Prompt Sanitizer">
+  <meta property="og:description" content="Convert schemas between Prisma, Drizzle and SQL. Sanitize passwords, tokens and PII before prompting AI. 100% private, client-side.">
+  <meta property="og:type" content="website">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+
+  <!-- Top Announcement Bar -->
+  <div class="bg-gradient-to-r from-emerald-900/60 via-slate-900 to-cyan-900/60 border-b border-emerald-500/20 py-2 px-4 text-xs font-medium text-center flex items-center justify-center gap-2">
+    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> 100% Client-Side Privacy
+    </span>
+    <span class="text-slate-300">Seus dados e schemas nunca saem do seu navegador. Zero servidores, zero telemetria.</span>
+    <a href="#sponsor" id="btn-hero-support-pix" class="ml-2 text-emerald-400 hover:text-emerald-300 underline font-semibold flex items-center gap-1">
+      <i data-lucide="coffee" class="w-3.5 h-3.5 inline"></i> Apoiar Projeto
+    </a>
+  </div>
+
+  <!-- Navbar -->
+  <header class="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 ring-1 ring-emerald-400/30">
+          <i data-lucide="database" class="w-5 h-5 text-slate-950 stroke-[2.5]"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">SchemaForge</span>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">STUDIO</span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Database Schema Converter & AI Data Sanitizer</p>
+        </div>
+      </div>
+
+      <!-- Tab Switcher -->
+      <nav class="flex items-center p-1 rounded-xl bg-slate-950/70 border border-slate-800">
+        <button id="tab-btn-converter" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-emerald-400 border border-emerald-500/50 shadow-sm transition">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>Schema Converter</span>
+        </button>
+        <button id="tab-btn-sanitizer" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+          <span>AI Data Sanitizer</span>
+          <span class="text-[10px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono">PII/Tokens</span>
+        </button>
+      </nav>
+
+      <!-- Monetization Action Buttons -->
+      <div class="flex items-center gap-2.5">
+        <button id="btn-open-pix-modal" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-500 hover:to-teal-500 shadow-md shadow-emerald-950 border border-emerald-400/30 transition">
+          <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
+          <span>Apoiar via Pix</span>
+        </button>
+
+        <a href="https://github.com/sponsors/GabrielHFGoncalez" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-pink-300 border border-pink-500/30 hover:border-pink-500/50 transition">
+          <i data-lucide="heart" class="w-3.5 h-3.5 text-pink-400 fill-pink-400/30"></i>
+          <span class="hidden sm:inline">Sponsor</span>
+        </a>
+
+        <a href="https://github.com/GabrielHFGoncalez/schemaforge" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition" title="Ver no GitHub">
+          <i data-lucide="github" class="w-4 h-4"></i>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- VIEW 1: SCHEMA CONVERTER -->
+    <section id="view-converter" class="space-y-4">
+      
+      <!-- Converter Sub-Header -->
+      <div class="glass-panel rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl font-bold text-white flex items-center gap-2">
+            <span>Conversor de Schemas de Bancos de Dados</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Instantâneo</span>
+          </h1>
+          <p class="text-xs text-slate-400 mt-1">Converta entre SQL DDL, Prisma Schema, Drizzle ORM, TypeScript Interfaces e JSON Schema com 1 clique.</p>
+        </div>
+
+        <!-- Presets -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-xs text-slate-400 font-medium">Exemplos:</span>
+          <button data-preset-converter="sql" class="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+            E-Commerce (SQL)
+          </button>
+          <button data-preset-converter="prisma" class="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+            Blog & Auth (Prisma)
+          </button>
+          <button data-preset-converter="drizzle" class="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+            SaaS Users (Drizzle)
+          </button>
+        </div>
+      </div>
+
+      <!-- Format Selectors Bar -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Source Config -->
+        <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Origem:</span>
+            <select id="converter-source-format" class="bg-slate-800 text-slate-200 text-xs font-medium rounded-lg px-2.5 py-1.5 border border-slate-700 focus:outline-none focus:border-emerald-500">
+              <option value="sql">SQL DDL (PostgreSQL / MySQL)</option>
+              <option value="prisma">Prisma Schema (.prisma)</option>
+              <option value="drizzle">Drizzle ORM (pgTable)</option>
+            </select>
+          </div>
+          <button id="converter-clear-btn" class="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1 transition">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Limpar
+          </button>
+        </div>
+
+        <!-- Target Config -->
+        <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Destino:</span>
+            <select id="converter-target-format" class="bg-slate-800 text-emerald-400 font-semibold text-xs rounded-lg px-2.5 py-1.5 border border-slate-700 focus:outline-none focus:border-emerald-500">
+              <option value="prisma">Prisma Schema (.prisma)</option>
+              <option value="drizzle">Drizzle ORM (TypeScript)</option>
+              <option value="sql">SQL DDL (PostgreSQL)</option>
+              <option value="typescript">TypeScript Interfaces (.d.ts)</option>
+              <option value="jsonSchema">JSON Schema (draft-07)</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button id="converter-copy-btn" class="px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/30 transition flex items-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar
+            </button>
+            <button id="converter-download-btn" class="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Baixar
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Editors Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Input Code -->
+        <div class="glass-card rounded-xl border border-slate-800 flex flex-col h-[520px] overflow-hidden code-glow transition">
+          <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800/80 flex items-center justify-between text-xs text-slate-400 font-mono">
+            <span>INPUT_SCHEMA</span>
+            <span>Edite ou cole aqui</span>
+          </div>
+          <textarea id="converter-input" spellcheck="false" class="flex-1 w-full p-4 bg-slate-950/70 text-slate-200 font-mono text-xs sm:text-sm leading-relaxed resize-none focus:outline-none" placeholder="Cole o código do seu schema aqui..."></textarea>
+          <div class="bg-slate-900/60 px-4 py-2 border-t border-slate-800/60 flex items-center justify-between text-xs">
+            <span class="text-slate-400 font-mono">Auto-parse ativo</span>
+            <button id="converter-run-btn" class="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-medium flex items-center gap-1 shadow-sm">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Converter Agora
+            </button>
+          </div>
+        </div>
+
+        <!-- Output Code -->
+        <div class="glass-card rounded-xl border border-slate-800 flex flex-col h-[520px] overflow-hidden">
+          <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800/80 flex items-center justify-between text-xs text-emerald-400 font-mono">
+            <span>OUTPUT_GENERATED</span>
+            <span class="text-slate-500 font-sans">Pronto para uso</span>
+          </div>
+          <textarea id="converter-output" readonly spellcheck="false" class="flex-1 w-full p-4 bg-slate-950/90 text-emerald-300 font-mono text-xs sm:text-sm leading-relaxed resize-none focus:outline-none" placeholder="O código convertido aparecerá aqui..."></textarea>
+          <div class="bg-slate-900/60 px-4 py-2 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
+            <span>Output formatado e pronto para copiar</span>
+            <span class="font-mono text-emerald-400">● 100% Client-Side</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- VIEW 2: AI PROMPT SANITIZER -->
+    <section id="view-sanitizer" class="space-y-4 hidden">
+      
+      <!-- Sanitizer Sub-Header -->
+      <div class="glass-panel rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold text-white">AI Data Sanitizer & PII Redactor</h1>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">Anti-Vazamento</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Sanitize dumps de SQL, logs e JSON antes de colar no ChatGPT, Claude ou Gemini. Proteja senhas, emails, tokens e CPF.</p>
+        </div>
+
+        <!-- Sanitizer Presets -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-xs text-slate-400 font-medium">Exemplos:</span>
+          <button data-preset-sanitizer="sqlDump" class="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+            SQL Dump Real
+          </button>
+          <button data-preset-sanitizer="apiPayload" class="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+            JSON API Payload
+          </button>
+        </div>
+      </div>
+
+      <!-- Controls & Rule Toggles -->
+      <div class="glass-card rounded-xl p-3 border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        
+        <!-- Mode Select -->
+        <div class="flex items-center gap-2">
+          <span class="font-semibold text-slate-400 uppercase tracking-wider text-[11px]">Modo de Sanitização:</span>
+          <select id="sanitizer-mode" class="bg-slate-800 text-emerald-400 font-semibold rounded-lg px-2.5 py-1 border border-slate-700 focus:outline-none">
+            <option value="placeholder">Tags Descritivas ([REDACTED_EMAIL_1])</option>
+            <option value="synthetic">Dados Falsos Realistas (Mock Faker)</option>
+            <option value="pseudonym">Pseudônimo Consistente (Preserva JOINs / FKs)</option>
+          </select>
+        </div>
+
+        <!-- Filter Checkboxes -->
+        <div class="flex items-center gap-3 flex-wrap">
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+            <input type="checkbox" id="opt-passwords" checked class="rounded border-slate-700 text-emerald-500 focus:ring-0">
+            <span>Senhas/Bcrypt</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+            <input type="checkbox" id="opt-emails" checked class="rounded border-slate-700 text-emerald-500 focus:ring-0">
+            <span>Emails</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+            <input type="checkbox" id="opt-cpf-cnpj" checked class="rounded border-slate-700 text-emerald-500 focus:ring-0">
+            <span>CPF / CNPJ</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+            <input type="checkbox" id="opt-phones" checked class="rounded border-slate-700 text-emerald-500 focus:ring-0">
+            <span>Telefones</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+            <input type="checkbox" id="opt-keys" checked class="rounded border-slate-700 text-emerald-500 focus:ring-0">
+            <span>Tokens/API Keys</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+            <input type="checkbox" id="opt-cards" checked class="rounded border-slate-700 text-emerald-500 focus:ring-0">
+            <span>Cartões</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+            <input type="checkbox" id="opt-ips" checked class="rounded border-slate-700 text-emerald-500 focus:ring-0">
+            <span>IPs</span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="flex items-center justify-between px-3 py-2 bg-slate-900/60 border border-slate-800/80 rounded-lg text-xs">
+        <div class="flex items-center gap-4 flex-wrap">
+          <span class="font-bold text-emerald-400 flex items-center gap-1" id="stat-total-count">0 itens sanitizados</span>
+          <span class="text-slate-400">Emails: <strong id="stat-emails" class="text-slate-200">0</strong></span>
+          <span class="text-slate-400">Senhas: <strong id="stat-passwords" class="text-slate-200">0</strong></span>
+          <span class="text-slate-400">CPFs: <strong id="stat-cpf" class="text-slate-200">0</strong></span>
+          <span class="text-slate-400">Telefones: <strong id="stat-phones" class="text-slate-200">0</strong></span>
+          <span class="text-slate-400">Tokens/Keys: <strong id="stat-keys" class="text-slate-200">0</strong></span>
+          <span class="text-slate-400">Cartões: <strong id="stat-cards" class="text-slate-200">0</strong></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="sanitizer-copy-btn" class="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-medium flex items-center gap-1 shadow-sm">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Copiar para o Prompt de IA
+          </button>
+        </div>
+      </div>
+
+      <!-- Sanitizer Editors Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Raw Input -->
+        <div class="glass-card rounded-xl border border-slate-800 flex flex-col h-[500px] overflow-hidden code-glow transition">
+          <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800/80 flex items-center justify-between text-xs text-rose-400 font-mono">
+            <span>RAW_SENSITIVE_DATA (Privado no Navegador)</span>
+            <button id="sanitizer-clear-btn" class="text-slate-400 hover:text-white flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-3 h-3"></i> Limpar
+            </button>
+          </div>
+          <textarea id="sanitizer-input" spellcheck="false" class="flex-1 w-full p-4 bg-slate-950/70 text-slate-200 font-mono text-xs sm:text-sm leading-relaxed resize-none focus:outline-none" placeholder="Cole aqui seu SQL dump, JSON de API ou log com dados sensíveis..."></textarea>
+          <div class="bg-slate-900/60 px-4 py-2 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
+            <span>Privacidade total garantida</span>
+            <button id="sanitizer-run-btn" class="px-2.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">
+              Reprocessar
+            </button>
+          </div>
+        </div>
+
+        <!-- Sanitized Output -->
+        <div class="glass-card rounded-xl border border-slate-800 flex flex-col h-[500px] overflow-hidden">
+          <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800/80 flex items-center justify-between text-xs text-emerald-400 font-mono">
+            <span>SAFE_AI_PROMPT_PAYLOAD (Seguro para ChatGPT / Claude)</span>
+            <button id="sanitizer-download-btn" class="text-slate-400 hover:text-white flex items-center gap-1">
+              <i data-lucide="download" class="w-3 h-3"></i> Baixar .txt
+            </button>
+          </div>
+          <textarea id="sanitizer-output" readonly spellcheck="false" class="flex-1 w-full p-4 bg-slate-950/90 text-cyan-300 font-mono text-xs sm:text-sm leading-relaxed resize-none focus:outline-none" placeholder="O texto sanitizado seguro aparecerá aqui..."></textarea>
+          <div class="bg-slate-900/60 px-4 py-2 border-t border-slate-800/60 flex items-center justify-between text-xs text-emerald-400">
+            <span>✓ Seguro para envio a LLMs</span>
+            <span class="font-mono text-xs">Pode colar sem risco de vazamento</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Developer Ecosystem & Infrastructure Recommendations -->
+    <section class="mt-12 pt-8 border-t border-slate-800/80">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <i data-lucide="server" class="w-4 h-4 text-emerald-400"></i>
+            Infraestrutura Recomendada para Desenvolvedores
+          </h2>
+          <p class="text-xs text-slate-500">Stacks modernas de banco de dados com camada gratuita generosa para colocar sua ideia no ar sem custos.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- Supabase -->
+        <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" class="glass-card p-4 rounded-xl border border-slate-800 hover:border-emerald-500/40 transition group">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-white text-sm group-hover:text-emerald-400 transition">Supabase</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono border border-emerald-500/20">PostgreSQL</span>
+          </div>
+          <p class="text-xs text-slate-400">Backend open-source completo com Postgres, Auth, Row Level Security e Edge Functions.</p>
+        </a>
+
+        <!-- Neon -->
+        <a href="https://neon.tech" target="_blank" rel="noopener noreferrer" class="glass-card p-4 rounded-xl border border-slate-800 hover:border-emerald-500/40 transition group">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-white text-sm group-hover:text-emerald-400 transition">Neon Database</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 font-mono border border-cyan-500/20">Serverless</span>
+          </div>
+          <p class="text-xs text-slate-400">PostgreSQL serverless com branching instantâneo (como Git), autoscaling e baixa latência.</p>
+        </a>
+
+        <!-- Fly.io -->
+        <a href="https://fly.io" target="_blank" rel="noopener noreferrer" class="glass-card p-4 rounded-xl border border-slate-800 hover:border-emerald-500/40 transition group">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-white text-sm group-hover:text-emerald-400 transition">Fly.io</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 font-mono border border-purple-500/20">Micro-VMs</span>
+          </div>
+          <p class="text-xs text-slate-400">Hospedagem global de containers próxima aos usuários, ideal para Node, Go, Rust e Python.</p>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-950 py-8 px-4 text-xs text-slate-500 mt-12">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <i data-lucide="shield" class="w-4 h-4 text-emerald-500"></i>
+        <span>SchemaForge Studio — Construído para desenvolvedores que valorizam velocidade e privacidade.</span>
+      </div>
+      <div class="flex items-center gap-4 text-slate-400">
+        <span>Criado por <strong>@GabrielHFGoncalez</strong></span>
+        <span>•</span>
+        <button id="footer-pix-trigger" onclick="document.getElementById('btn-open-pix-modal').click()" class="text-emerald-400 hover:underline">Apoiar via Pix</button>
+        <span>•</span>
+        <a href="https://github.com/sponsors/GabrielHFGoncalez" target="_blank" class="text-pink-400 hover:underline">GitHub Sponsors</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PIX DONATION MODAL -->
+  <div id="pix-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-panel modal-enter max-w-md w-full rounded-2xl p-6 border border-emerald-500/30 shadow-2xl relative">
+      
+      <!-- Close button -->
+      <button id="btn-close-pix-modal" class="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-white bg-slate-800/80 transition">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="text-center mb-5">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/20">
+          <i data-lucide="coffee" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white">Apoie o SchemaForge Studio</h3>
+        <p class="text-xs text-slate-400 mt-1">Este projeto é 100% gratuito e roda no seu navegador sem rastreadores. Sua contribuição mantém o software livre e independente.</p>
+      </div>
+
+      <!-- QR Code Container -->
+      <div class="bg-white p-3 rounded-xl w-56 h-56 mx-auto flex items-center justify-center shadow-lg border border-slate-200">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=99f7b8c7-6dcc-494a-ab2f-fa39c51f4bcd" alt="QR Code Pix" class="w-full h-full object-contain">
+      </div>
+
+      <!-- Pix Details -->
+      <div class="mt-4 bg-slate-900/90 rounded-xl p-3 border border-slate-800 text-xs space-y-2">
+        <div class="flex justify-between text-slate-400">
+          <span>Beneficiário:</span>
+          <span class="font-semibold text-slate-200">GABRIEL</span>
+        </div>
+        <div class="flex justify-between text-slate-400">
+          <span>Cidade:</span>
+          <span class="font-semibold text-slate-200">São Paulo</span>
+        </div>
+        
+        <!-- Copy Paste Key -->
+        <div class="pt-2 border-t border-slate-800">
+          <label class="block text-[11px] font-medium text-slate-400 mb-1">Chave Pix (Aleatória):</label>
+          <div class="flex items-center gap-1.5">
+            <input id="pix-key-input" type="text" readonly value="99f7b8c7-6dcc-494a-ab2f-fa39c51f4bcd" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-emerald-400 font-mono focus:outline-none select-all">
+            <button id="btn-copy-pix-key" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1 transition shadow-sm">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggested values -->
+      <div class="mt-4 flex items-center justify-center gap-2 text-xs">
+        <span class="text-slate-400">Sugestões:</span>
+        <span class="px-2 py-0.5 rounded bg-slate-800 text-emerald-400 font-mono">R$ 5 (Café)</span>
+        <span class="px-2 py-0.5 rounded bg-slate-800 text-emerald-400 font-mono">R$ 15 (Pizza)</span>
+        <span class="px-2 py-0.5 rounded bg-slate-800 text-emerald-400 font-mono">R$ 50 (Booster)</span>
+      </div>
+
+      <!-- Alternate: GitHub Sponsors -->
+      <div class="mt-4 pt-3 border-t border-slate-800/80 text-center">
+        <a href="https://github.com/sponsors/GabrielHFGoncalez" target="_blank" rel="noopener noreferrer" class="text-xs text-pink-400 hover:text-pink-300 font-semibold inline-flex items-center gap-1">
+          <i data-lucide="heart" class="w-3.5 h-3.5 fill-pink-400/30"></i> Prefere apoiar mensalmente no GitHub Sponsors?
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
