@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://gabrielhfgoncalez.github.io/schemaforge/sitemap.xml
